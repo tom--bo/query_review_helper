@@ -94,4 +94,32 @@ FROM (
 	return c.Cardinality, nil
 }
 
+// Add "EXPLAIN" clause
+func makeExplainQuery(query string) string {
+	query = strings.TrimSpace(query)
+	if len(query) < 7 {
+		return "EXPLAIN " + query
+	}
+	if strings.ToUpper(query[0:7]) != "EXPLAIN" {
+		return "EXPLAIN " + query
+	}
+	return query
+}
+
+func getOptimizerTrace(query string) (string, error) {
+	var err error
+
+	db.Exec("SET optimizer_trace_max_mem_size = 1048576")
+	db.Exec("SET optimizer_trace='enabled=on'")
+
+	query = makeExplainQuery(query)
+	db.Exec(query)
+
+	trace := ""
+	q := "SELECT trace FROM INFORMATION_SCHEMA.OPTIMIZER_TRACE"
+	err = db.Get(&trace, q)
+
+	return trace, err
+}
+
 
