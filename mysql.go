@@ -38,7 +38,7 @@ func getKeys(dbs, tbl string) (IndexInfo, error){
 	indexInfo := IndexInfo{}
 	indexInfo.indexes = make(map[string]string)
 	q := `
-SELECT index_name, GROUP_CONCAT(column_name ORDER BY seq_in_index ASC) AS columns
+SELECT index_name, GROUP_CONCAT(CONCAT(column_name, " ", collation) ORDER BY seq_in_index ASC) AS columns
 FROM information_schema.statistics WHERE (table_schema, table_name) = (:sname, :tname) GROUP BY index_name ORDER BY columns
 `
 	rows, err := db.NamedQuery(q, map[string]interface{}{"sname": dbs, "tname": tbl})
