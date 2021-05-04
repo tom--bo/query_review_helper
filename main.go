@@ -99,9 +99,9 @@ func main() {
 			fmt.Println("Get keys err", err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("%-10s: %s\n", info.pkColumns, "PRIMARY")
+		fmt.Printf("%-10s: %s\n", "PRIMARY", info.pkColumns)
 		for k, v := range info.indexes {
-			fmt.Printf("%-10s: %s\n", k, v)
+			fmt.Printf("%-10s: %s\n", v, k)
 		}
 
 		// cardinality取得のサンプル
