@@ -14,6 +14,7 @@ import (
 
 var (
 	db *sqlx.DB
+	rdr = bufio.NewReaderSize(os.Stdin, 1000000)
 	host string
 	port int
 	user string
@@ -55,6 +56,8 @@ func main() {
 	}
 	*/
 
+	fmt.Println("(Input query and Ctrl-D at the last line)")
+	q := readLine()
 
 	err := connectMySQL()
 	if err != nil {
@@ -62,8 +65,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// trace, err := getOptimizerTrace("select * from t1 where c1 = 1")
-	q := readLine()
 	trace, err := getOptimizerTrace(q)
 	if err != nil {
 		fmt.Println("get trace err", err.Error())
@@ -86,7 +87,7 @@ func main() {
 	// Todo: step の1, 2番目に要素が来ないケースは一旦無視
 	for _, tbl := range tblJson.Steps[1].JoinOptimization.Steps[2].TableDependencies {
 		tblName := strings.ReplaceAll(tbl.Table, "`", "")
-		fmt.Println("====" + tblName + "====")
+		fmt.Println("==== " + tblName + " ====")
 		info, err := getKeys(database, tblName)
 		if err != nil {
 			fmt.Println("Get keys err", err.Error())
@@ -107,8 +108,6 @@ func main() {
 	}
 
 }
-
-var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
 
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
