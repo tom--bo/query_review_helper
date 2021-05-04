@@ -1,2 +1,4 @@
 .DS_Store
 .idea
+go.sum
+query_review_helper

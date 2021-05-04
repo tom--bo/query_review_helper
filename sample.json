@@ -1,0 +1,281 @@
+{
+  "steps": [
+    {
+      "join_preparation": {
+        "select#": 1,
+        "steps": [
+          {
+            "expanded_query": "/* select#1 */ select `t1`.`id` AS `id`,`t1`.`c1` AS `c1`,`t1`.`c3` AS `c3`,`t2`.`id` AS `id`,`t2`.`c1` AS `c1`,`t2`.`c2` AS `c2`,`t2`.`c4` AS `c4` from (`t1` join `t2` on((`t1`.`id` = `t2`.`id`)))"
+          },
+          {
+            "transformations_to_nested_joins": {
+              "transformations": [
+                "JOIN_condition_to_WHERE",
+                "parenthesis_removal"
+              ],
+              "expanded_query": "/* select#1 */ select `t1`.`id` AS `id`,`t1`.`c1` AS `c1`,`t1`.`c3` AS `c3`,`t2`.`id` AS `id`,`t2`.`c1` AS `c1`,`t2`.`c2` AS `c2`,`t2`.`c4` AS `c4` from `t1` join `t2` where (`t1`.`id` = `t2`.`id`)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "join_optimization": {
+        "select#": 1,
+        "steps": [
+          {
+            "condition_processing": {
+              "condition": "WHERE",
+              "original_condition": "(`t1`.`id` = `t2`.`id`)",
+              "steps": [
+                {
+                  "transformation": "equality_propagation",
+                  "resulting_condition": "multiple equal(`t1`.`id`, `t2`.`id`)"
+                },
+                {
+                  "transformation": "constant_propagation",
+                  "resulting_condition": "multiple equal(`t1`.`id`, `t2`.`id`)"
+                },
+                {
+                  "transformation": "trivial_condition_removal",
+                  "resulting_condition": "multiple equal(`t1`.`id`, `t2`.`id`)"
+                }
+              ]
+            }
+          },
+          {
+            "substitute_generated_columns": {
+            }
+          },
+          {
+            "table_dependencies": [
+              {
+                "table": "`t1`",
+                "row_may_be_null": false,
+                "map_bit": 0,
+                "depends_on_map_bits": [
+                ]
+              },
+              {
+                "table": "`t2`",
+                "row_may_be_null": false,
+                "map_bit": 1,
+                "depends_on_map_bits": [
+                ]
+              }
+            ]
+          },
+          {
+            "ref_optimizer_key_uses": [
+              {
+                "table": "`t1`",
+                "field": "id",
+                "equals": "`t2`.`id`",
+                "null_rejecting": true
+              },
+              {
+                "table": "`t2`",
+                "field": "id",
+                "equals": "`t1`.`id`",
+                "null_rejecting": true
+              }
+            ]
+          },
+          {
+            "rows_estimation": [
+              {
+                "table": "`t1`",
+                "table_scan": {
+                  "rows": 5,
+                  "cost": 0.25
+                }
+              },
+              {
+                "table": "`t2`",
+                "table_scan": {
+                  "rows": 3,
+                  "cost": 0.25
+                }
+              }
+            ]
+          },
+          {
+            "considered_execution_plans": [
+              {
+                "plan_prefix": [
+                ],
+                "table": "`t2`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 3,
+                      "filtering_effect": [
+                      ],
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 3,
+                      "cost": 0.55,
+                      "chosen": true
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 3,
+                "cost_for_plan": 0.55,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`t2`"
+                    ],
+                    "table": "`t1`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 1.05,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "rows_to_scan": 5,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 1,
+                          "resulting_rows": 5,
+                          "cost": 1.7502,
+                          "chosen": false
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 3,
+                    "cost_for_plan": 1.6,
+                    "chosen": true
+                  }
+                ]
+              },
+              {
+                "plan_prefix": [
+                ],
+                "table": "`t1`",
+                "best_access_path": {
+                  "considered_access_paths": [
+                    {
+                      "access_type": "ref",
+                      "index": "PRIMARY",
+                      "usable": false,
+                      "chosen": false
+                    },
+                    {
+                      "rows_to_scan": 5,
+                      "filtering_effect": [
+                      ],
+                      "final_filtering_effect": 1,
+                      "access_type": "scan",
+                      "resulting_rows": 5,
+                      "cost": 0.75,
+                      "chosen": true
+                    }
+                  ]
+                },
+                "condition_filtering_pct": 100,
+                "rows_for_plan": 5,
+                "cost_for_plan": 0.75,
+                "rest_of_plan": [
+                  {
+                    "plan_prefix": [
+                      "`t1`"
+                    ],
+                    "table": "`t2`",
+                    "best_access_path": {
+                      "considered_access_paths": [
+                        {
+                          "access_type": "eq_ref",
+                          "index": "PRIMARY",
+                          "rows": 1,
+                          "cost": 1.75,
+                          "chosen": true,
+                          "cause": "clustered_pk_chosen_by_heuristics"
+                        },
+                        {
+                          "rows_to_scan": 3,
+                          "filtering_effect": [
+                          ],
+                          "final_filtering_effect": 1,
+                          "access_type": "scan",
+                          "using_join_cache": true,
+                          "buffers_needed": 1,
+                          "resulting_rows": 3,
+                          "cost": 1.7501,
+                          "chosen": false
+                        }
+                      ]
+                    },
+                    "condition_filtering_pct": 100,
+                    "rows_for_plan": 5,
+                    "cost_for_plan": 2.5,
+                    "pruned_by_cost": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "attaching_conditions_to_tables": {
+              "original_condition": "(`t1`.`id` = `t2`.`id`)",
+              "attached_conditions_computation": [
+              ],
+              "attached_conditions_summary": [
+                {
+                  "table": "`t2`",
+                  "attached": null
+                },
+                {
+                  "table": "`t1`",
+                  "attached": "(`t1`.`id` = `t2`.`id`)"
+                }
+              ]
+            }
+          },
+          {
+            "finalizing_table_conditions": [
+              {
+                "table": "`t1`",
+                "original_table_condition": "(`t1`.`id` = `t2`.`id`)",
+                "final_table_condition   ": null
+              }
+            ]
+          },
+          {
+            "refine_plan": [
+              {
+                "table": "`t2`"
+              },
+              {
+                "table": "`t1`"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "join_execution": {
+        "select#": 1,
+        "steps": [
+        ]
+      }
+    }
+  ]
+}
