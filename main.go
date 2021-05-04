@@ -36,6 +36,7 @@ func parseOptions() {
 
 
 func main() {
+	fmt.Println("(Input query and ^D at the last line)")
 	parseOptions()
 
 	// read from file
@@ -56,7 +57,6 @@ func main() {
 	}
 	*/
 
-	fmt.Println("(Input query and Ctrl-D at the last line)")
 	q := readLine()
 
 	err := connectMySQL()
@@ -85,9 +85,15 @@ func main() {
 
 
 	// Todo: step の1, 2番目に要素が来ないケースは一旦無視
+	fmt.Println("\n==== Tables ====")
 	for _, tbl := range tblJson.Steps[1].JoinOptimization.Steps[2].TableDependencies {
 		tblName := strings.ReplaceAll(tbl.Table, "`", "")
-		fmt.Println("==== " + tblName + " ====")
+		fmt.Println("- " + tblName)
+	}
+	fmt.Println("\n==== Indexes ====")
+	for _, tbl := range tblJson.Steps[1].JoinOptimization.Steps[2].TableDependencies {
+		tblName := strings.ReplaceAll(tbl.Table, "`", "")
+		fmt.Println("== " + tblName + " ==")
 		info, err := getKeys(database, tblName)
 		if err != nil {
 			fmt.Println("Get keys err", err.Error())
