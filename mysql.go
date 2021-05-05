@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func connectMySQL() error{
+func connectMySQL() error {
 	var err error
 	mysqlHost := user + ":" + password + "@tcp(" + host + ":" + strconv.Itoa(port) + ")/" + database + "?loc=Local&parseTime=true"
 	if socket != "" {
@@ -26,15 +26,15 @@ func connectMySQL() error{
 
 type IndexColumn struct {
 	IndexName string `db:"index_name"`
-	Columns string `db:"columns"`
+	Columns   string `db:"columns"`
 }
 
 type IndexInfo struct {
 	pkColumns string
-	indexes map[string]string
+	indexes   map[string]string
 }
 
-func getKeys(dbs, tbl string) (IndexInfo, error){
+func getKeys(dbs, tbl string) (IndexInfo, error) {
 	indexInfo := IndexInfo{}
 	indexInfo.indexes = make(map[string]string)
 	q := `
@@ -94,32 +94,44 @@ FROM (
 	return c.Cardinality, nil
 }
 
-// Add "EXPLAIN" clause
-func makeExplainQuery(query string) string {
-	query = strings.TrimSpace(query)
-	if len(query) < 7 {
-		return "EXPLAIN " + query
-	}
-	if strings.ToUpper(query[0:7]) != "EXPLAIN" {
-		return "EXPLAIN " + query
-	}
-	return query
+type TableColumn struct {
+	TableName  string `db:"table_name"`
+	ColumnName string `db:"column_name"`
 }
 
-func getOptimizerTrace(query string) (string, error) {
-	var err error
+func assignOrphanColumns(tableMap map[string]string, tbls, cols []string) error {
+	p := map[string]interface{}{
+		"tablename":  tbls,
+		"columnname": cols,
+	}
 
-	db.Exec("SET optimizer_trace_max_mem_size = 1048576")
-	db.Exec("SET optimizer_trace='enabled=on'")
+	q := `SELECT table_name as table_name, column_name column_name
+FROM information_schema.columns WHERE table_name IN (:tablename) AND column_name IN (:columnname)`
+	query, args, err := sqlx.Named(q, p)
+	if err != nil {
+		return err
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return err
+	}
+	query = db.Rebind(query)
 
-	query = makeExplainQuery(query)
-	db.Exec(query)
+	rows, err := db.Queryx(query, args...)
+	if err != nil {
+		return err
+	}
 
-	trace := ""
-	q := "SELECT trace FROM INFORMATION_SCHEMA.OPTIMIZER_TRACE"
-	err = db.Get(&trace, q)
+	tableColumn := TableColumn{}
+	for rows.Next() {
+		err = rows.StructScan(&tableColumn)
+		if err != nil {
+			return err
+		}
+		if _, ok := tableMap[tableColumn.TableName]; ok {
+			tableMap[tableColumn.TableName] = tableColumn.ColumnName
+		}
+	}
 
-	return trace, err
+	return nil
 }
-
-
