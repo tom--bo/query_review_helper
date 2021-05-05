@@ -11,9 +11,9 @@ Like ...
 ```sql
 SELECT count(distinct {column})
 FROM (
-	(SELECT {column} {table} ORDER BY ({PK_COL1} ASC , {PK_COL1} ASC} LIMIT 5000)
+	(SELECT {column} FROM {table} ORDER BY {PK_COL1} ASC, {PK_COL1} ASC LIMIT 5000)
 	UNION DISTINCT
-	(SELECT {column} {table} ORDER BY ({PK_COL1} DESC , {PK_COL1} DESC} LIMIT 5000)
+	(SELECT {column} FROM {table} ORDER BY {PK_COL1} DESC, {PK_COL1} DESC LIMIT 5000)
 ) tmp
 ```
 
