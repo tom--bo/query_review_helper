@@ -20,27 +20,34 @@ func start(q string) {
 	tableMap := make(map[string]string)
 	orphanColumns := []string{}
 
-	// fmt.Println("== Tables")
+	if DEBUG {
+		fmt.Println("== Tables\n", tables)
+	}
+
 	for _, tbl := range tables {
 		tableMap[tbl] = ""
-		// fmt.Println("- " + tbl)
 	}
-	for _, c := range columns {
-		col := strings.Split(c, ".")
-		if len(col) < 2 {
+	if DEBUG {
+		fmt.Println("== Columns\n", columns)
+	}
+	for _, col := range columns {
+		c := strings.Split(col, ".")
+		if len(c) < 2 {
 			fmt.Println("Something bad happen")
 			os.Exit(1)
 		}
 
-		if col[0] == "" {
-			orphanColumns = append(orphanColumns, col[1])
+		_, ok := tableMap[c[0]]
+		if !ok || c[0] == "" {
+			orphanColumns = append(orphanColumns, c[1])
 		} else {
-			tableMap[col[0]] += "," + col[1]
-			if tableMap[col[0]][0:1] == "," {
-				tableMap[col[0]] = tableMap[col[0]][1:]
-			}
+			tableMap[c[0]] += "," + c[1]
 		}
 	}
+	if DEBUG {
+		fmt.Println("tableMap\n", tableMap, "\n======")
+	}
+
 	// assign orphan columns
 	err = assignOrphanColumns(tableMap, tables, orphanColumns)
 	if err != nil {
@@ -66,10 +73,12 @@ func start(q string) {
 
 		// Column Cardinality
 		fmt.Println("  - Cardinality")
-
 		// tableColumnMapからcardinality取得
 		cols := strings.Split(tableMap[tbl], ",")
 		for _, c := range cols {
+			if c == "" {
+				continue
+			}
 			cardinality, err := samplingColumnCardinality(tbl, info.pkColumns, c, 1000)
 			if err != nil {
 				fmt.Println(err.Error())

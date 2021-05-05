@@ -14,7 +14,7 @@ type colVisitor struct {
 
 func (v *colVisitor) Enter(in ast.Node) (ast.Node, bool) {
 	if c, ok := in.(*ast.ColumnName); ok {
-		v.colNames = append(v.colNames, c.Table.O+"."+c.Name.O)
+		v.colNames = append(v.colNames, c.Table.L+"."+c.Name.O)
 	}
 	if t, ok := in.(*ast.TableName); ok {
 		v.tblNames = append(v.tblNames, t.Name.O)

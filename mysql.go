@@ -75,6 +75,10 @@ type TableCardinality struct {
 func samplingColumnCardinality(table, pkColumn, column string, limit int) (int, error) {
 	pkASC := strings.ReplaceAll(pkColumn, ",", " ASC, ") + " ASC"
 	pkDESC := strings.ReplaceAll(pkColumn, ",", " DESC, ") + " DESC"
+	if column == "" {
+		fmt.Println(table, column)
+		return 0, nil
+	}
 
 	q := fmt.Sprintf(`
 SELECT COUNT(DISTINCT %s) as cardinality
@@ -129,7 +133,7 @@ FROM information_schema.columns WHERE table_name IN (:tablename) AND column_name
 			return err
 		}
 		if _, ok := tableMap[tableColumn.TableName]; ok {
-			tableMap[tableColumn.TableName] = tableColumn.ColumnName
+			tableMap[tableColumn.TableName] += "," + tableColumn.ColumnName
 		}
 	}
 

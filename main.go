@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	DEBUG    = false
 	db       *sqlx.DB
 	rdr      = bufio.NewReaderSize(os.Stdin, 1000000)
 	host     string
@@ -22,6 +23,7 @@ var (
 )
 
 func parseOptions() {
+	flag.BoolVar(&DEBUG, "debug", false, "DEBUG mode")
 	flag.StringVar(&host, "h", "localhost", "mysql host")
 	flag.IntVar(&port, "P", 3306, "mysql port")
 	flag.StringVar(&user, "u", "root", "mysql user")
