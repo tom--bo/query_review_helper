@@ -43,7 +43,7 @@ func parse(sql string) (*ast.StmtNode, error) {
 	return &stmtNodes[0], nil
 }
 
-func getColumnsFromSQL(sql string) ([]string, []string, error) {
+func getTableColumnsFromSQL(sql string) ([]string, []string, error) {
 	astNode, err := parse(sql)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err.Error())

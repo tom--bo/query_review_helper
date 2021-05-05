@@ -2,12 +2,32 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	"log"
 	"strconv"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
+
+type IndexColumn struct {
+	IndexName string `db:"index_name"`
+	Columns   string `db:"columns"`
+}
+
+type IndexInfo struct {
+	pkColumns string
+	indexes   map[string]string
+}
+
+type TableColumn struct {
+	TableName  string `db:"table_name"`
+	ColumnName string `db:"column_name"`
+}
+
+type TableCardinality struct {
+	Cardinality int `db:"cardinality"`
+}
 
 func connectMySQL() error {
 	var err error
@@ -22,16 +42,6 @@ func connectMySQL() error {
 		return err
 	}
 	return nil
-}
-
-type IndexColumn struct {
-	IndexName string `db:"index_name"`
-	Columns   string `db:"columns"`
-}
-
-type IndexInfo struct {
-	pkColumns string
-	indexes   map[string]string
 }
 
 func getKeys(dbs, tbl string) (IndexInfo, error) {
@@ -68,10 +78,6 @@ FROM information_schema.statistics WHERE (table_schema, table_name) = (:sname, :
 	return indexInfo, nil
 }
 
-type TableCardinality struct {
-	Cardinality int `db:"cardinality"`
-}
-
 func samplingColumnCardinality(table, pkColumn, column string, limit int) (int, error) {
 	pkASC := strings.ReplaceAll(pkColumn, ",", " ASC, ") + " ASC"
 	pkDESC := strings.ReplaceAll(pkColumn, ",", " DESC, ") + " DESC"
@@ -96,11 +102,6 @@ FROM (
 	}
 
 	return c.Cardinality, nil
-}
-
-type TableColumn struct {
-	TableName  string `db:"table_name"`
-	ColumnName string `db:"column_name"`
 }
 
 func assignOrphanColumns(tableMap map[string]string, tbls, cols []string) error {

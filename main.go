@@ -13,7 +13,7 @@ import (
 var (
 	DEBUG    = false
 	db       *sqlx.DB
-	rdr      = bufio.NewReaderSize(os.Stdin, 1000000)
+	reader   = bufio.NewReaderSize(os.Stdin, 1000000)
 	host     string
 	port     int
 	user     string
@@ -52,9 +52,9 @@ func main() {
 }
 
 func readLine() string {
-	buf := make([]byte, 0, 1000000)
+	buf := make([]byte, 0, 100000)
 	for {
-		l, err := rdr.ReadString('\n')
+		l, err := reader.ReadString('\n')
 		if err == io.EOF {
 			break
 		}

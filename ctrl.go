@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func start(q string) {
 	// parse
-	tables, columns, err := getColumnsFromSQL(q)
+	tables, columns, err := getTableColumnsFromSQL(q)
 	if err != nil {
 		fmt.Println("parse select-stmt err")
 		fmt.Println(err.Error())
@@ -55,7 +56,6 @@ func start(q string) {
 		os.Exit(1)
 	}
 
-	// fmt.Println("= Tables")
 	for _, tbl := range tables {
 		fmt.Println("\n- " + tbl)
 
@@ -73,7 +73,6 @@ func start(q string) {
 
 		// Column Cardinality
 		fmt.Println("  - Cardinality")
-		// tableColumnMapからcardinality取得
 		cols := strings.Split(tableMap[tbl], ",")
 		for _, c := range cols {
 			if c == "" {
