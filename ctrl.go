@@ -100,21 +100,29 @@ func start(q string) {
 	}
 
 	// print result
+	fmt.Println("\n\n\n==== Tables in query ====")
 	for _, tbl := range tableInfos {
 		// Table name
-		fmt.Println("\n- " + tbl.name)
+		if indexFlag || cardinalityFlag {
+			fmt.Println("")
+		}
+		fmt.Println("- " + tbl.name)
 
 		// Index
-		fmt.Println("  - Index")
-		fmt.Printf("    - %-20s: (%s)\n", "PRIMARY", tbl.index.pkColumns)
-		for k, v := range tbl.index.indexes {
-			fmt.Printf("    - %-20s: (%s)\n", v, k)
+		if indexFlag {
+			fmt.Println("  - Index")
+			fmt.Printf("    - %-20s: (%s)\n", "PRIMARY", tbl.index.pkColumns)
+			for k, v := range tbl.index.indexes {
+				fmt.Printf("    - %-20s: (%s)\n", v, k)
+			}
 		}
 
 		// Column Cardinality
-		fmt.Println("  - Cardinality")
-		for col, cardi := range tbl.columns {
-			fmt.Printf("    - %s = %d\n", col, cardi)
+		if cardinalityFlag {
+			fmt.Println("  - Cardinality")
+			for col, cardi := range tbl.columns {
+				fmt.Printf("    - %s = %d\n", col, cardi)
+			}
 		}
 	}
 }

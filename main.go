@@ -11,19 +11,29 @@ import (
 )
 
 var (
-	DEBUG    = false
-	db       *sqlx.DB
-	reader   = bufio.NewReaderSize(os.Stdin, 1000000)
-	host     string
-	port     int
-	user     string
-	password string
-	database string
-	socket   string
+	DEBUG           = false
+	db              *sqlx.DB
+	reader          = bufio.NewReaderSize(os.Stdin, 1000000)
+	host            string
+	port            int
+	user            string
+	password        string
+	database        string
+	socket          string
+	indexFlag       bool
+	cardinalityFlag bool
+	explainFlag     bool
+	showCreateFlag  bool
 )
 
 func parseOptions() {
 	flag.BoolVar(&DEBUG, "debug", false, "DEBUG mode")
+
+	flag.BoolVar(&indexFlag, "i", false, "show indexes")
+	flag.BoolVar(&cardinalityFlag, "c", false, "show cardinalities")
+	flag.BoolVar(&explainFlag, "e", false, "show explain results")
+	flag.BoolVar(&showCreateFlag, "s", false, "show show create table results")
+
 	flag.StringVar(&host, "h", "localhost", "mysql host")
 	flag.IntVar(&port, "P", 3306, "mysql port")
 	flag.StringVar(&user, "u", "root", "mysql user")
