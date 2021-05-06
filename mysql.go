@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"strconv"
@@ -139,4 +140,47 @@ FROM information_schema.columns WHERE table_name IN (:tablename) AND column_name
 	}
 
 	return nil
+}
+
+type ExplainResult struct {
+	ID           int64          `db:"id"`
+	SelectType   string         `db:"select_type"`
+	Table        string         `db:"table"`
+	Partitions   sql.NullString `db:"partitions"`
+	Type         sql.NullString `db:"type"`
+	PossibleKeys sql.NullString `db:"possible_keys"`
+	Key          sql.NullString `db:"key"`
+	KeyLen       sql.NullInt32  `db:"key_len"`
+	Ref          sql.NullString `db:"ref"`
+	Rows         int64          `db:"rows"`
+	Filtered     float32        `db:"filtered"`
+	Extra        sql.NullString `db:"Extra"`
+}
+
+func makeExplainQuery(query string) string {
+	query = strings.TrimSpace(query)
+	if len(query) < 7 {
+		return "EXPLAIN " + query
+	}
+	if strings.ToUpper(query[0:7]) != "EXPLAIN" {
+		return "EXPLAIN " + query
+	}
+	return query
+}
+
+func getExplainResult(query string) ([]ExplainResult, error) {
+	query = makeExplainQuery(query)
+	ret := []ExplainResult{}
+
+	rows, err := db.Queryx(query)
+	r := ExplainResult{}
+	for rows.Next() {
+		err = rows.StructScan(&r)
+		if err != nil {
+			return ret, err
+		}
+		ret = append(ret, r)
+	}
+
+	return ret, nil
 }

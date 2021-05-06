@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -99,8 +100,48 @@ func start(q string) {
 		tableInfos = append(tableInfos, tblInfo)
 	}
 
+	// explain
+	if explainFlag {
+		fmt.Println("\n\n\n==== Explain Result ====")
+		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("| id | select_type |     table            |   type   |         key          | keylen |    ref                                   |   rows   | filtered |  extra     |\n")
+		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		explains, err := getExplainResult(q)
+		if err != nil {
+			fmt.Println("Failed to get EXPLAIN result", err.Error())
+		}
+		for _, e := range explains {
+			id := e.ID
+			selectType := e.SelectType
+			table := e.Table
+			accessType := "NULL"
+			if e.Type.Valid {
+				accessType = e.Type.String
+			}
+			key := "NULL"
+			if e.Key.Valid {
+				key = e.Key.String
+			}
+			keyLen := "NULL"
+			if e.KeyLen.Valid {
+				keyLen = strconv.Itoa(int(e.KeyLen.Int32))
+			}
+			ref := "NULL"
+			if e.Ref.Valid {
+				ref = e.Ref.String
+			}
+			extra := "NULL"
+			if e.Extra.Valid {
+				extra = e.Extra.String
+			}
+			fmt.Printf("| %2d | %-11s | %-20s | %-8s | %-20s | %-6s | %-40s | %-8d |   %-3.2f | %-10s |\n",
+				id, selectType, table, accessType, key, keyLen, ref, e.Rows, e.Filtered, extra)
+		}
+		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+	}
+
 	// print result
-	fmt.Println("\n\n\n==== Tables in query ====")
+	fmt.Println("\n\n==== Tables in query ====")
 	for _, tbl := range tableInfos {
 		// Table name
 		if indexFlag || cardinalityFlag {
