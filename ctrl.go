@@ -103,9 +103,9 @@ func start(q string) {
 	// explain
 	if explainFlag {
 		fmt.Println("\n\n\n==== Explain Result ====")
-		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
-		fmt.Printf("| id | select_type |     table            |   type   |         key          | keylen |    ref                                   |   rows   | filtered |  extra     |\n")
-		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("| id | select_type |     table            | part   |   type   |         key          | keylen |    ref                                   |   rows   | filtered |  extra     |\n")
+		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
 		explains, err := getExplainResult(q)
 		if err != nil {
 			fmt.Println("Failed to get EXPLAIN result", err.Error())
@@ -117,6 +117,11 @@ func start(q string) {
 			accessType := "NULL"
 			if e.Type.Valid {
 				accessType = e.Type.String
+			}
+			partition6char := "NULL"
+			if e.Partitions.Valid {
+				partition6char = e.Partitions.String + "      "
+				partition6char = partition6char[:6]
 			}
 			key := "NULL"
 			if e.Key.Valid {
@@ -134,10 +139,10 @@ func start(q string) {
 			if e.Extra.Valid {
 				extra = e.Extra.String
 			}
-			fmt.Printf("| %2d | %-11s | %-20s | %-8s | %-20s | %-6s | %-40s | %-8d |   %-3.2f | %-10s |\n",
-				id, selectType, table, accessType, key, keyLen, ref, e.Rows, e.Filtered, extra)
+			fmt.Printf("| %2d | %-11s | %-20s | %-6s | %-8s | %-20s | %-6s | %-40s | %-8d |   %-3.2f | %-10s |\n",
+				id, selectType, table, partition6char, accessType, key, keyLen, ref, e.Rows, e.Filtered, extra)
 		}
-		fmt.Printf("+----+-------------+----------------------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
 	}
 
 	// print result
