@@ -150,7 +150,7 @@ type ExplainResult struct {
 	Type         sql.NullString `db:"type"`
 	PossibleKeys sql.NullString `db:"possible_keys"`
 	Key          sql.NullString `db:"key"`
-	KeyLen       sql.NullInt32  `db:"key_len"`
+	KeyLen       sql.NullString `db:"key_len"`
 	Ref          sql.NullString `db:"ref"`
 	Rows         int64          `db:"rows"`
 	Filtered     float32        `db:"filtered"`

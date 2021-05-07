@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -75,7 +74,7 @@ func start(q string) {
 		}
 		if info.pkColumns == "" {
 			// Error and skip if PK not found
-			fmt.Printf("[WARNING] %s table do not have Primary key, skip this table.", tbl)
+			fmt.Printf("[WARNING] %s table do not have Primary key, skip this table.\n", tbl)
 			continue
 		}
 		tblInfo := TableInfo{
@@ -103,9 +102,9 @@ func start(q string) {
 	// explain
 	if explainFlag {
 		fmt.Println("\n\n\n==== Explain Result ====")
-		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
-		fmt.Printf("| id | select_type |     table            | part   |   type   |         key          | keylen |    ref                                   |   rows   | filtered |  extra     |\n")
-		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("+----+-------------+----------------------+--------+-------------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("| id | select_type |     table            | part   |   type      |         key          | keylen |    ref                                   |   rows   | filtered |  extra     |\n")
+		fmt.Printf("+----+-------------+----------------------+--------+-------------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
 		explains, err := getExplainResult(q)
 		if err != nil {
 			fmt.Println("Failed to get EXPLAIN result", err.Error())
@@ -129,7 +128,7 @@ func start(q string) {
 			}
 			keyLen := "NULL"
 			if e.KeyLen.Valid {
-				keyLen = strconv.Itoa(int(e.KeyLen.Int32))
+				keyLen = e.KeyLen.String
 			}
 			ref := "NULL"
 			if e.Ref.Valid {
@@ -139,10 +138,10 @@ func start(q string) {
 			if e.Extra.Valid {
 				extra = e.Extra.String
 			}
-			fmt.Printf("| %2d | %-11s | %-20s | %-6s | %-8s | %-20s | %-6s | %-40s | %-8d |   %-3.2f | %-10s |\n",
+			fmt.Printf("| %2d | %-11s | %-20s | %-6s | %-11s | %-20s | %-6s | %-40s | %-8d |   %-3.2f | %-10s |\n",
 				id, selectType, table, partition6char, accessType, key, keyLen, ref, e.Rows, e.Filtered, extra)
 		}
-		fmt.Printf("+----+-------------+----------------------+--------+----------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
+		fmt.Printf("+----+-------------+----------------------+--------+-------------+----------------------+--------+------------------------------------------+----------+----------+------------+\n")
 	}
 
 	// print result
