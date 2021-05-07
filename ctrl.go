@@ -90,7 +90,7 @@ func start(q string) {
 			if _, ok := tblInfo.columns[c]; ok || c == "" {
 				continue
 			}
-			cardinality, err := samplingColumnCardinality(tbl, info.pkColumns, c, 5000)
+			cardinality, err := samplingColumnCardinality(tbl, info.pkColumns, c)
 			if err != nil {
 				fmt.Println(err.Error())
 				os.Exit(1)

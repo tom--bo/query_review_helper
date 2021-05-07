@@ -16,6 +16,7 @@ var (
 	reader          = bufio.NewReaderSize(os.Stdin, 1000000)
 	host            string
 	port            int
+	limit           int
 	user            string
 	password        string
 	database        string
@@ -33,6 +34,7 @@ func parseOptions() {
 	flag.BoolVar(&cardinalityFlag, "c", false, "show cardinalities")
 	flag.BoolVar(&explainFlag, "e", false, "show explain results")
 	flag.BoolVar(&showCreateFlag, "s", false, "show show create table results")
+	flag.IntVar(&limit, "l", 5000, "limitation for cardinality")
 
 	flag.StringVar(&host, "h", "localhost", "mysql host")
 	flag.IntVar(&port, "P", 3306, "mysql port")

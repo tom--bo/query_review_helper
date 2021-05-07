@@ -79,7 +79,7 @@ FROM information_schema.statistics WHERE (table_schema, table_name) = (:sname, :
 	return indexInfo, nil
 }
 
-func samplingColumnCardinality(table, pkColumn, column string, limit int) (int, error) {
+func samplingColumnCardinality(table, pkColumn, column string) (int, error) {
 	pkASC := strings.ReplaceAll(pkColumn, ",", " ASC, ") + " ASC"
 	pkDESC := strings.ReplaceAll(pkColumn, ",", " DESC, ") + " DESC"
 	if column == "" {
