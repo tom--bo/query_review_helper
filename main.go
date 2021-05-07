@@ -49,6 +49,13 @@ func parseOptions() {
 func main() {
 	fmt.Println("(Input query and ^D at the last line)")
 	parseOptions()
+	// if all view-flag is not specified, set all view-flags true (show all information in default)
+	if !indexFlag && !cardinalityFlag && !explainFlag && !showCreateFlag {
+		indexFlag = true
+		cardinalityFlag = true
+		explainFlag = true
+		showCreateFlag = true
+	}
 
 	// Get query
 	q := readLine()

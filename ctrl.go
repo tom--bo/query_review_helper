@@ -162,7 +162,7 @@ func start(q string) {
 		if cardinalityFlag {
 			fmt.Println("  - Cardinality")
 			for col, cardi := range tbl.columns {
-				fmt.Printf("    - %s = %d\n", col, cardi)
+				fmt.Printf("    - %-12s = %-4d\n", col, cardi)
 			}
 		}
 	}
