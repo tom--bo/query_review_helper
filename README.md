@@ -150,10 +150,26 @@ SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer,
     - rental_duration = 5
 ```
 
-You can omit output with some options (`-e`, `-i`, `-c`)
+You can omit output with some options (`-e`, `-i`, `-c`).  
 For example with `-e` option, you can only see `EXPLAIN` result.
 
 ```sql
+$ ./bin/query_review_helper -u {user} -p {password} -h 192.168.1.10 -P 3306  -d sakila
+(Input query and ^D at the last line)
+SELECT CONCAT(c.last_name, ', ', c.first_name) AS customer,
+       a.phone, f.title
+FROM rental r INNER JOIN customer c ON r.customer_id = c.customer_id
+              INNER JOIN address a ON c.address_id = a.address_id
+              INNER JOIN inventory i ON r.inventory_id = i.inventory_id
+              INNER JOIN film f ON i.film_id = f.film_id
+WHERE r.return_date IS NULL
+  AND rental_date + INTERVAL f.rental_duration DAY < CURRENT_DATE()
+ORDER BY title
+    LIMIT 5;
+
+^D
+
+
 ==== Explain Result ====
 +----+-------------+----------------------+--------+-------------+----------------------------------+--------+------------------------------------------+----------+----------+------------+
 | id | select_type |     table            | part   |   type      |         key                      | keylen |    ref                                   |   rows   | filtered |  extra     |
@@ -201,6 +217,23 @@ Usage of ./query_review_helper:
   -u string
     	mysql user (default "mysql")
 ```
+
+### Config file
+
+You can configure config-file with `-f` option.  
+Currently, you can specify `user`, `password`, `port` in config file.
+
+(Please see conf/sample.cnf)
+
+```toml
+[auth]
+user     = "sample-user"
+password = "passwd"
+port     = 3306
+```
+
+
+### Note
 
 I refered and tested with [sakila sample database](https://dev.mysql.com/doc/sakila/en/) like above examples.
 
