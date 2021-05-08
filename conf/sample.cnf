@@ -1,0 +1,6 @@
+[auth]
+user     = "sample-user"
+password = "passwd"
+port     = 3306
+
+

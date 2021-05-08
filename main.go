@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	toml "github.com/pelletier/go-toml"
 	"io"
 	"os"
 )
@@ -14,6 +15,7 @@ var (
 	DEBUG           = false
 	db              *sqlx.DB
 	reader          = bufio.NewReaderSize(os.Stdin, 1000000)
+	confFile        string
 	host            string
 	port            int
 	limit           int
@@ -33,17 +35,31 @@ func parseOptions() {
 	flag.BoolVar(&indexFlag, "i", false, "show indexes")
 	flag.BoolVar(&cardinalityFlag, "c", false, "show cardinalities")
 	flag.BoolVar(&explainFlag, "e", false, "show explain results")
-	flag.BoolVar(&showCreateFlag, "s", false, "show show create table results")
-	flag.IntVar(&limit, "l", 5000, "limitation for cardinality")
+	// flag.BoolVar(&showCreateFlag, "s", false, "show show create table results")
+	flag.IntVar(&limit, "l", 5000, "limitation for cardinality sampling")
 
+	flag.StringVar(&confFile, "f", "", "conf file for auth info")
 	flag.StringVar(&host, "h", "localhost", "mysql host")
 	flag.IntVar(&port, "P", 3306, "mysql port")
-	flag.StringVar(&user, "u", "root", "mysql user")
-	flag.StringVar(&password, "p", "", "mysql password")
+	flag.StringVar(&user, "u", "mysql", "mysql user")
+	flag.StringVar(&password, "p", "password", "mysql password")
 	flag.StringVar(&database, "d", "", "mysql database")
 	flag.StringVar(&socket, "S", "", "mysql unix domain socket")
 
 	flag.Parse()
+}
+
+func readConf() error {
+	bytes, err := os.ReadFile(confFile)
+	if err != nil {
+		return err
+	}
+	conf, err := toml.Load(string(bytes))
+	user = conf.Get("auth.user").(string)
+	password = conf.Get("auth.password").(string)
+	port = int(conf.Get("auth.port").(int64))
+
+	return nil
 }
 
 func main() {
@@ -55,6 +71,9 @@ func main() {
 		cardinalityFlag = true
 		explainFlag = true
 		showCreateFlag = true
+	}
+	if confFile != "" {
+		readConf()
 	}
 
 	// Get query
